@@ -116,6 +116,11 @@ async def beatSaberRequest(ctx):
 
     detailsRes = conn.request("GET", "/api/maps/detail/%s" % args[1])
 
+    if not detailsRes:
+        await ctx.send("Could not complete request!")
+        conn.close()
+        return
+
     if detailsRes.status != 200:
         if detailsRes.status == 404:
             await ctx.send("Error: song for key %s not found!" % args[1])
@@ -135,6 +140,8 @@ async def beatSaberRequest(ctx):
         'requester':ctx.author.name
     }
     queue.append(item)
+    
+    conn.close()
 
     await ctx.send("Added %s[%s] (%.1f%%) Requested by %s." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'], ctx.author.name))
 
