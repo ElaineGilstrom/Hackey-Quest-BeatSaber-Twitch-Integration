@@ -55,7 +55,7 @@ async def help(ctx):
     #TODO: Implement help menu
     args = ctx.content.split(" ")
     if len(args) == 1:
-        await ctx.send('Commands: !ping, !bsr, !ss. Type !help <command> for more info on individual commands')
+        await ctx.send('Commands: !ping, !bsr, !oops, !queue, !history, !ss. Type !help <command> for more info on individual commands')
         return
 
     if args[1].lower() == "ping":
@@ -66,6 +66,15 @@ async def help(ctx):
         return
     elif args[1].lower() == "ss":
         await ctx.send("Displays %s's scoresaber information." % os.environ['CHANNEL'])
+        return
+    elif args[1].lower() == "oops":
+        await ctx.send("Removes your previously requested song from the queue.")
+        return
+    elif args[1].lower() == "queue":
+        await ctx.send("Displays the songs currently in queue")
+        return
+    elif args[1].lower() == "history":
+        await ctx.send("Displays the songs that have previously been requested during this stream.")
         return
     else:
         await ctx.send("Error: Unrecognized command %s!" % args[1])
@@ -79,6 +88,10 @@ async def ping(ctx):
 async def scoreSaberLookup(ctx):
     #TODO: Figure out why tf this is sending 3 requests with 2 responding with 404
     conn = http.HTTPSConnection("new.scoresaber.com")
+    if not conn:
+        await ctx.send("Could not establish a connection with scoresaber.com!")
+        return
+
     conn.request("GET", "/api/player/%s/full" % os.environ['SCORESABER_ID'])
     res = conn.getresponse()
 
@@ -93,9 +106,10 @@ async def scoreSaberLookup(ctx):
 
     conn.close()
 
+#Note: I've made the explicit decision not to implement song requests by song name because more often than not
+#   the requests that are made with that method end up being bad.
 @bot.command(name="bsr")
 async def beatSaberRequest(ctx):
-    #TODO: Implement
     args = ctx.content.split(" ")
     if len(args) != 2:
         await ctx.send("Usage: !bsr <song key> where <song key> is a song key from beatsaver.com.")
@@ -105,8 +119,8 @@ async def beatSaberRequest(ctx):
         await ctx.send("Invalid Key Provided")
         return
 
-    if any(args[1] == s['key'] for s in queue):
-        await ctx.send("Key %s already exists in queue." % args[1])
+    if any(args[1] == s['key'] for s in queue) or any(args[1] == s['key'] for s in history):
+        await ctx.send("Key %s already exists in queue or history." % args[1])
         return
 
     conn = http.HTTPSConnection("beatsaver.com", timeout=10)
@@ -140,10 +154,10 @@ async def beatSaberRequest(ctx):
         'requester':ctx.author.name
     }
     queue.append(item)
-    
+
     conn.close()
 
-    await ctx.send("Added %s[%s] (%.1f%%) Requested by %s." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'], ctx.author.name))
+    await ctx.send("Added %s[%s] (%.1f%%) Requested by %s. Queue currently contains %d songs." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'], ctx.author.name, len(queue)))
 
 @bot.command(name="oops")
 async def removeLastReq(ctx):
