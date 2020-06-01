@@ -14,6 +14,7 @@ uploaded to bmbf.
 4. Run `pipenv shell` 
 5. Finally, run `python bot.py` to start the bot.
 
+Warning: git and pipenv like to fight, so I would recommend copying everything (with the exception of git) over to a new directory when running pipenv so git doesn't screw up the file permissions and cause pipenv to crash.
 
 #### Enviromental Variables ####
 
