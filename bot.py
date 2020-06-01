@@ -25,11 +25,14 @@ bot = commands.Bot(
     initial_channels=[os.environ['CHANNEL']]
 )
 
+
+
 @bot.event
 async def event_ready():
     print(f"{os.environ['BOT_NICK']} is online!")
     ws = bot._ws  # this is only needed to send messages within event_ready
     await ws.send_privmsg(os.environ['CHANNEL'], f"/me has landed! Now handling beat saber song requests.")
+
 
 
 @bot.event
@@ -42,6 +45,7 @@ async def event_message(ctx):
 
     sys.stdout.flush()
     sys.stderr.flush()
+
 
 
 @bot.command(name="help")
@@ -76,10 +80,14 @@ async def help(ctx):
     else:
         await ctx.send("Error: Unrecognized command %s!" % args[1])
 
+
+
 @bot.command(name="ping")
 async def ping(ctx):
     print("\nPinged by %s." % ctx.author.name)
     await ctx.send('Pong!')
+
+
 
 
 @bot.command(name="ss")
@@ -106,6 +114,8 @@ async def scoreSaberLookup(ctx):
     conn.close()
     print("Success")
 
+
+
 #Note: I've made the explicit decision not to implement song requests by song name because more often than not
 #   the requests that are made with that method end up being bad.
 @bot.command(name="bsr")
@@ -118,12 +128,12 @@ async def beatSaberRequest(ctx):
         return
 
     if not re.fullmatch("[0-9a-fA-F]+", args[1]):
-        print("\nReceived bad request from %s." % ctx.author.name)
+        print("\nRecieved bad request from %s." % ctx.author.name)
         await ctx.send("Invalid Key Provided")
         return
 
     if any(args[1] == s['key'] for s in queue) or any(args[1] == s['key'] for s in history):
-        print("\nReceived duplicate request from %s for key %s." % (ctx.author.name, args[1]))
+        print("\nRecieved duplicate request from %s for key %s." % (ctx.author.name, args[1]))
         await ctx.send("Key %s already exists in queue or history." % args[1])
         return
 
@@ -156,7 +166,7 @@ async def beatSaberRequest(ctx):
             print("Song not found!")
             await ctx.send("Error: song for key %s not found!" % args[1])
         else:
-            print("Error: Received unexpected response from beatsaver.com! (%d)" % detailsRes.status)
+            print("Error: Recieved unexpected response from beatsaver.com! (%d)" % detailsRes.status)
             await ctx.send("Error: Unable to access beatsaver.com!")
 
         conn.close()
@@ -181,6 +191,8 @@ async def beatSaberRequest(ctx):
     print("Song %s successfully added to queue." % item['songName'])
     await ctx.send("Added %s[%s] (%.1f%%) Requested by %s. Queue currently contains %d songs." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'], ctx.author.name, len(queue)))
 
+
+
 @bot.command(name="oops")
 async def removeLastReq(ctx):
     global queue
@@ -203,9 +215,11 @@ async def removeLastReq(ctx):
     await ctx.send("No songs requested by %s found." % ctx.author.name)
     print("No songs in queue matched requester %s." % ctx.author.name)
 
+
 @bot.command(name='code')
 async def credits(ctx):
-    await.send("My code can be found here: https://github.com/ElaineGilstrom/Hackey-Quest-BeatSaber-Twitch-Integration :)")
+    await ctx.send("My code can be found here: https://github.com/ElaineGilstrom/Hackey-Quest-BeatSaber-Twitch-Integration :)")
+
 
 @bot.command(name="genBplist")
 async def genPlaylist(ctx):
@@ -251,6 +265,8 @@ async def genPlaylist(ctx):
 
     await ctx.send("Playlist %s has been generated!" % fileName)
 
+
+
 @bot.command(name="queue")
 async def showQueue(ctx):
     global queue
@@ -266,6 +282,8 @@ async def showQueue(ctx):
 
     await ctx.send(output)
 
+
+
 @bot.command(name="history")
 async def showHistory(ctx):
     global history
@@ -280,6 +298,8 @@ async def showHistory(ctx):
 
     await ctx.send(output)
 
+
+
 @bot.command(name='kill')
 async def kill(ctx):
     if ctx.author.name.lower() != os.environ['CHANNEL'].lower():
@@ -290,6 +310,8 @@ async def kill(ctx):
     await ctx.send("Goodbye, cruel world ;-;")
     sys.stdout.flush()
     os._exit(0)
+
+
 
 if __name__ == "__main__":
     bot.run()
