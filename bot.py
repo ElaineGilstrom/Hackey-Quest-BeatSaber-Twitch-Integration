@@ -49,7 +49,7 @@ async def help(ctx):
     #TODO: Implement help menu
     args = ctx.content.split(" ")
     if len(args) == 1:
-        await ctx.send('Commands: !ping, !bsr, !oops, !queue, !history, !ss. Type !help <command> for more info on individual commands')
+        await ctx.send('Commands: !ping, !bsr, !oops, !queue, !history, !ss, !code. Type !help <command> for more info on individual commands')
         return
 
     if args[1].lower() == "ping":
@@ -69,6 +69,9 @@ async def help(ctx):
         return
     elif args[1].lower() == "history":
         await ctx.send("Displays the songs that have previously been requested during this stream.")
+        return
+    elif args[1].lower() == "code":
+        await ctx.send("Responds with a link to my source code.")
         return
     else:
         await ctx.send("Error: Unrecognized command %s!" % args[1])
@@ -181,17 +184,28 @@ async def beatSaberRequest(ctx):
 @bot.command(name="oops")
 async def removeLastReq(ctx):
     global queue
+    print("\nAttempting to remove %s's last song." % ctx.author.name)
 
     if len(queue) == 0:
         await ctx.send("No songs in queue to.")
+        print("No songs in queue.")
         return
 
     for i in range(len(queue) - 1, -1, -1):
         if queue[i]['requester'] == ctx.author.name:
+            msg = "Removed @%s's last requested song: %s (%s)." % (ctx.author.name, queue[i]['songName'], queue[i]['key'])
+            await ctx.send(msg)
+            print(msg)
+
             del queue[i]
-            break
+            return
 
     await ctx.send("No songs requested by %s found." % ctx.author.name)
+    print("No songs in queue matched requester %s." % ctx.author.name)
+
+@bot.command(name='code')
+async def credits(ctx):
+    await.send("My code can be found here: https://github.com/ElaineGilstrom/Hackey-Quest-BeatSaber-Twitch-Integration :)")
 
 @bot.command(name="genBplist")
 async def genPlaylist(ctx):
