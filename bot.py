@@ -8,19 +8,13 @@ import http.client as http
 import re
 from datetime import datetime
 
-"""
-#Loads enviremental variables in because pipenv is shit and completely and utterly broke on me.
-envVars = {}
-f = open(".env", "r")
-for l in f:
-    t = l.split("=", 1)
-    if len(t) == 2:
-        envVars[t[0]] = t[1]
-f.close()"""
+
 
 queue = []
 playlistCount = 0
 history = []
+
+
 
 bot = commands.Bot(
     # set up the bot
@@ -110,6 +104,8 @@ async def scoreSaberLookup(ctx):
 #   the requests that are made with that method end up being bad.
 @bot.command(name="bsr")
 async def beatSaberRequest(ctx):
+    global queue
+
     args = ctx.content.split(" ")
     if len(args) != 2:
         await ctx.send("Usage: !bsr <song key> where <song key> is a song key from beatsaver.com.")
@@ -123,23 +119,36 @@ async def beatSaberRequest(ctx):
         await ctx.send("Key %s already exists in queue or history." % args[1])
         return
 
-    conn = http.HTTPSConnection("beatsaver.com", timeout=10)
+
+    serv = "beatsaver.com"
+    ep = "/api/maps/detail/%s"
+
+    conn = http.HTTPSConnection(serv)
     if not conn:
+        print("Error: Failed to establish connection with beatsaver.com!")
         await ctx.send("Could not establish a connection with beatsaver.com!")
         return
 
-    detailsRes = conn.request("GET", "/api/maps/detail/%s" % args[1])
+    #These being seperate calls really caused me a lot of pain -_-
+    conn.request("GET", ep % args[1], headers={'User-Agent': 'TwitchQuestIntegrationBot/0.0.0'})
+    detailsRes = conn.getresponse()
+
+    print("Accessing:", "https://" + serv + ep % args[1])
 
     if not detailsRes:
+        print("Error: Could not complete request with beatsaver.com!")
         await ctx.send("Could not complete request!")
         conn.close()
         return
 
-    if detailsRes.status != 200:
+    if detailsRes.status != 200 and detailsRes.status != 304:
         if detailsRes.status == 404:
             await ctx.send("Error: song for key %s not found!" % args[1])
         else:
+            print("Error: Recieved unexpected response from beatsaver.com! (%d)" % detailsRes.status)
             await ctx.send("Error: Unable to access beatsaver.com!")
+
+        conn.close()
         return
 
     details = json.loads(detailsRes.read())
