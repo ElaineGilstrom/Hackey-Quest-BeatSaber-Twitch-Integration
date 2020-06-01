@@ -18,19 +18,19 @@ uploaded to bmbf.
 #### Enviromental Variables ####
 
 Twitch Configuration:
-0. `TMI_TOKEN` - The oauth token for your chatbot. You can get it here: https://twitchapps.com/tmi/
-1. `CLIENT_ID` - Your bots username (must be in all lowercase letters)
-2. `BOT_NICK` - Your bots nickname (it is easiest if you make this the same as its username)
-3. `BOT_PREFIX` - the prefix for commands. It is easiest to just leave this as the default exclamation mark.
-4. `CHANNEL` - Your channel name (must be in all lowercase letters)
+1. `TMI_TOKEN` - The oauth token for your chatbot. You can get it here: https://twitchapps.com/tmi/
+2. `CLIENT_ID` - Your bots username (must be in all lowercase letters)
+3. `BOT_NICK` - Your bots nickname (it is easiest if you make this the same as its username)
+4. `BOT_PREFIX` - the prefix for commands. It is easiest to just leave this as the default exclamation mark.
+5. `CHANNEL` - Your channel name (must be in all lowercase letters)
 
 BSR Configuration:
-0. `MIN_SONG_APPROVAL` - The minimum like to dislike ratio to except a song into your queue. Default is 0.00 (aka anything goes) 
-1. `PLAYLIST_THUMBNAIL` - The PNG thumbnail to use for the playlists. MUST BE BASE64 ENCODED 
-2. `OUTPUT_FOLDER` - The folder to save your queue playlists to.
+1. `MIN_SONG_APPROVAL` - The minimum like to dislike ratio to except a song into your queue. Default is 0.00 (aka anything goes) 
+2. `PLAYLIST_THUMBNAIL` - The PNG thumbnail to use for the playlists. MUST BE BASE64 ENCODED 
+3. `OUTPUT_FOLDER` - The folder to save your queue playlists to.
 
 Scoresaber Configuration:
-0. `SCORESABER_ID` - Your scoresaber ID for the !ss command. Can be found in the url when looking at your scoresaber profile.
+1. `SCORESABER_ID` - Your scoresaber ID for the !ss command. Can be found in the url when looking at your scoresaber profile.
 
 ### Commands ###
 
