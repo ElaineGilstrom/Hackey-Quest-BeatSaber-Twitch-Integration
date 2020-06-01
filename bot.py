@@ -75,12 +75,14 @@ async def help(ctx):
 
 @bot.command(name="ping")
 async def ping(ctx):
+    print("\nPinged by %s." % ctx.author.name)
     await ctx.send('Pong!')
 
 
 @bot.command(name="ss")
 async def scoreSaberLookup(ctx):
-    #TODO: Figure out why tf this is sending 3 requests with 2 responding with 404
+    print("\nLooking up scoresaber info. SS requested by %s." % ctx.author.name)
+
     conn = http.HTTPSConnection("new.scoresaber.com")
     if not conn:
         await ctx.send("Could not establish a connection with scoresaber.com!")
@@ -99,6 +101,7 @@ async def scoreSaberLookup(ctx):
         await ctx.send(r)#split this up in an attempt to keep the line length down. Clearly that failed though
 
     conn.close()
+    print("Success")
 
 #Note: I've made the explicit decision not to implement song requests by song name because more often than not
 #   the requests that are made with that method end up being bad.
@@ -112,13 +115,17 @@ async def beatSaberRequest(ctx):
         return
 
     if not re.fullmatch("[0-9a-fA-F]+", args[1]):
+        print("\nRecieved bad request from %s." % ctx.author.name)
         await ctx.send("Invalid Key Provided")
         return
 
     if any(args[1] == s['key'] for s in queue) or any(args[1] == s['key'] for s in history):
+        print("\nRecieved duplicate request from %s for key %s." % (ctx.author.name, args[1]))
         await ctx.send("Key %s already exists in queue or history." % args[1])
         return
 
+
+    print("\nLooking up key %s." % args[1])
 
     serv = "beatsaver.com"
     ep = "/api/maps/detail/%s"
@@ -133,7 +140,7 @@ async def beatSaberRequest(ctx):
     conn.request("GET", ep % args[1], headers={'User-Agent': 'TwitchQuestIntegrationBot/0.0.0'})
     detailsRes = conn.getresponse()
 
-    print("Accessing:", "https://" + serv + ep % args[1])
+    #print("Accessing:", "https://" + serv + ep % args[1])
 
     if not detailsRes:
         print("Error: Could not complete request with beatsaver.com!")
@@ -143,6 +150,7 @@ async def beatSaberRequest(ctx):
 
     if detailsRes.status != 200 and detailsRes.status != 304:
         if detailsRes.status == 404:
+            print("Song not found!")
             await ctx.send("Error: song for key %s not found!" % args[1])
         else:
             print("Error: Recieved unexpected response from beatsaver.com! (%d)" % detailsRes.status)
@@ -153,6 +161,7 @@ async def beatSaberRequest(ctx):
 
     details = json.loads(detailsRes.read())
     if details['stats']['rating'] < float(os.environ['MIN_SONG_APPROVAL']):
+        print("%s requested a crap song. Rating: %d" % (ctx.author.name, details['stats']['rating']))
         await ctx.send("Request for song \"%s\" by %s denied. Map must have a rating of at least %s." % (details['name'], details['metadata']['levelAuthorName'], os.environ['MIN_SONG_APPROVAL']))
         return
 
@@ -166,10 +175,13 @@ async def beatSaberRequest(ctx):
 
     conn.close()
 
+    print("Song %s successfully added to queue." % item['songName'])
     await ctx.send("Added %s[%s] (%.1f%%) Requested by %s. Queue currently contains %d songs." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'], ctx.author.name, len(queue)))
 
 @bot.command(name="oops")
 async def removeLastReq(ctx):
+    global queue
+
     if len(queue) == 0:
         await ctx.send("No songs in queue to.")
         return
@@ -183,6 +195,10 @@ async def removeLastReq(ctx):
 
 @bot.command(name="genBplist")
 async def genPlaylist(ctx):
+    global queue
+    global history
+    global playlistCount
+
     if ctx.author.name.lower() != os.environ['CHANNEL'].lower():
         return
 
@@ -223,6 +239,8 @@ async def genPlaylist(ctx):
 
 @bot.command(name="queue")
 async def showQueue(ctx):
+    global queue
+
     if len(queue) == 0:
         await ctx.send("Queue is empty!")
         return
@@ -236,6 +254,8 @@ async def showQueue(ctx):
 
 @bot.command(name="history")
 async def showHistory(ctx):
+    global history
+
     if len(history) == 0:
         await ctx.send("History is empty!")
         return
