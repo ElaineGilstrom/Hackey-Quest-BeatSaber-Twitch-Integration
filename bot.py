@@ -118,12 +118,12 @@ async def beatSaberRequest(ctx):
         return
 
     if not re.fullmatch("[0-9a-fA-F]+", args[1]):
-        print("\nRecieved bad request from %s." % ctx.author.name)
+        print("\nReceived bad request from %s." % ctx.author.name)
         await ctx.send("Invalid Key Provided")
         return
 
     if any(args[1] == s['key'] for s in queue) or any(args[1] == s['key'] for s in history):
-        print("\nRecieved duplicate request from %s for key %s." % (ctx.author.name, args[1]))
+        print("\nReceived duplicate request from %s for key %s." % (ctx.author.name, args[1]))
         await ctx.send("Key %s already exists in queue or history." % args[1])
         return
 
@@ -156,7 +156,7 @@ async def beatSaberRequest(ctx):
             print("Song not found!")
             await ctx.send("Error: song for key %s not found!" % args[1])
         else:
-            print("Error: Recieved unexpected response from beatsaver.com! (%d)" % detailsRes.status)
+            print("Error: Received unexpected response from beatsaver.com! (%d)" % detailsRes.status)
             await ctx.send("Error: Unable to access beatsaver.com!")
 
         conn.close()
