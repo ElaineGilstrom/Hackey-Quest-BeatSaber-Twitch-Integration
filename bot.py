@@ -266,5 +266,16 @@ async def showHistory(ctx):
 
     await ctx.send(output)
 
+@bot.command(name='kill')
+async def kill(ctx):
+    if ctx.author.name.lower() != os.environ['CHANNEL'].lower():
+        await ctx.send("HELP! @%s IS TRYING TO KILL ME!", ctx.author.name)
+        return
+
+    print("Goodbye, cruel world ;-;")
+    await ctx.send("Goodbye, cruel world ;-;")
+    sys.stdout.flush()
+    os._exit(0)
+
 if __name__ == "__main__":
     bot.run()
