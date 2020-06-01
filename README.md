@@ -40,6 +40,7 @@ Scoresaber Configuration:
 3. `!queue` - Prints out the current songs in queue
 4. `!history` - Prints out the songs that have already been packaged into playlist form.
 5. `!ss` - Displays the streamer's scoresaber info.
+6. `!code` - Responds with the link to this repository.
 
 
 Streamer specific commands:
