@@ -1,11 +1,11 @@
-# Quest Hackey BSR/Twitch integration
+# Beat Saber Twitch Integration For The Quest
 
 This is a simple irc bot that handles basic beat saber song requests. It 
 works by creating a list of requested songs, then once the streamer is 
 ready, will create a .bplist (beat saber playlist) that can easily be 
 uploaded to bmbf.
 
-#### Setup ####
+### Setup ###
 
 0. Configure the `.env` file (see Enviromental Variables for more info)
 1. Install python 3.7+
@@ -15,7 +15,7 @@ uploaded to bmbf.
 5. Finally, run `python bot.py` to start the bot.
 
 
-##### Enviromental Variables #####
+#### Enviromental Variables ####
 
 `TMI_TOKEN` - The oauth token for your chatbot. You can get it here: https://twitchapps.com/tmi/ ::
 `CLIENT_ID` - Your bots username (must be in all lowercase letters) ::
@@ -29,7 +29,7 @@ uploaded to bmbf.
 
 `SCORESABER_ID` - Your scoresaber ID for the !ss command. Can be found in the url when looking at your scoresaber profile.
 
-#### Commands ####
+### Commands ###
 
 0. `!help [cmd]` - Displays commands and gives more information about specific commands.
 1. `!bsr <key>` - Adds the given song to the queue.
