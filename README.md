@@ -10,9 +10,9 @@ uploaded to bmbf.
 0. Configure the `.env` file (see Enviromental Variables for more info)
 1. Install python 3.7+
 2. Run `pip install pipenv`
-3. Run `pipenv --python 3.7` in directory with script
-4. Run `pipenv sync` in directory with script
-5. Run `pipenv shell` then `python bot.py`
+3. Run `pipenv sync` in directory with bot.py
+4. Run `pipenv shell` 
+5. Finally, run `python bot.py` to start the bot.
 
 
 ###### Enviromental Variables ######
