@@ -15,7 +15,7 @@ uploaded to bmbf.
 5. Finally, run `python bot.py` to start the bot.
 
 
-###### Enviromental Variables ######
+##### Enviromental Variables #####
 
 `TMI_TOKEN` - The oauth token for your chatbot. You can get it here: https://twitchapps.com/tmi/ ::
 `CLIENT_ID` - Your bots username (must be in all lowercase letters) ::
@@ -28,3 +28,18 @@ uploaded to bmbf.
 `OUTPUT_FOLDER` - The folder to save your queue playlists to.
 
 `SCORESABER_ID` - Your scoresaber ID for the !ss command. Can be found in the url when looking at your scoresaber profile.
+
+#### Commands ####
+
+0. `!help [cmd]` - Displays commands and gives more information about specific commands.
+1. `!bsr <key>` - Adds the given song to the queue.
+2. `!oops` - Removes the last song added by the caller from the queue.
+3. `!queue` - Prints out the current songs in queue
+4. `!history` - Prints out the songs that have already been packaged into playlist form.
+5. `!ss` - Displays the streamer's scoresaber info.
+
+
+Streamer specific commands:
+
+0. `!genBplist` - Generates a beat saber playlist for the current queue and moves qued songs into history.
+1. `!kill` - Kills the bot
