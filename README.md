@@ -26,7 +26,7 @@ Twitch Configuration:
 5. `CHANNEL` - Your channel name (must be in all lowercase letters)
 
 BSR Configuration:
-1. `MIN_SONG_APPROVAL` - The minimum like to dislike ratio to except a song into your queue. Default is 0.00 (aka anything goes) 
+1. `MIN_SONG_APPROVAL` - The minimum like to dislike ratio to except a song into your queue. Default is 0.00 (aka anything goes). Range of `0.00 <= MIN_SONG_APPROVAL < 1.00` with 1.00 being 100% approval
 2. `PLAYLIST_THUMBNAIL` - The PNG thumbnail to use for the playlists. MUST BE BASE64 ENCODED 
 3. `OUTPUT_FOLDER` - The folder to save your queue playlists to.
 
@@ -46,5 +46,5 @@ Scoresaber Configuration:
 
 Streamer specific commands:
 
-0. `!genBplist` - Generates a beat saber playlist for the current queue and moves qued songs into history.
+0. `!genlist` - Generates a beat saber playlist for the current queue and moves qued songs into history.
 1. `!kill` - Kills the bot
