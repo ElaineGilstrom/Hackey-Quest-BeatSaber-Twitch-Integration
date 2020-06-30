@@ -9,6 +9,17 @@ import re
 from datetime import datetime
 
 
+#checkMap is the function that determinse if a map should be allowed in queue or not.
+#Place any custom checks on the map here.
+#Place the error msg for any failed checks in the issues list
+def checkMap(map = {}):
+    issues = []
+    min_app = float(os.environ['MIN_SONG_APPROVAL'])
+    if map['stats']['rating'] < min_app and map['stats']['downVotes'] != 0:
+        issues.append("Map must have a rating of at least %s." % (min_app * 100))
+        return
+    return []
+
 
 queue = []
 playlistCount = 0
@@ -115,7 +126,6 @@ async def scoreSaberLookup(ctx):
     print("Success")
 
 
-
 #Note: I've made the explicit decision not to implement song requests by song name because more often than not
 #   the requests that are made with that method end up being bad.
 @bot.command(name="bsr")
@@ -173,9 +183,18 @@ async def beatSaberRequest(ctx):
         return
 
     details = json.loads(detailsRes.read())
-    if details['stats']['rating'] < float(os.environ['MIN_SONG_APPROVAL']):
+    
+    issues = checkMap(details)
+
+    if len(issues) > 0:
         print("%s requested a crap song. Rating: %d" % (ctx.author.name, details['stats']['rating']))
-        await ctx.send("Request for song \"%s\" by %s denied. Map must have a rating of at least %s." % (details['name'], details['metadata']['levelAuthorName'], os.environ['MIN_SONG_APPROVAL']))
+
+        reason = "Request for song \"%s\" by %s denied: " % (map['name'], map['metadata']['levelAuthorName'])
+        for i in issues:
+            reason += i + ', '
+
+        await ctx.send(reason)
+
         return
 
     item = {
@@ -189,7 +208,7 @@ async def beatSaberRequest(ctx):
     conn.close()
 
     print("Song %s successfully added to queue." % item['songName'])
-    await ctx.send("Added %s[%s] (%.1f%%) Requested by %s. Queue currently contains %d songs." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'], ctx.author.name, len(queue)))
+    await ctx.send("Added %s[%s] (%.1f%%) Requested by %s. Queue currently contains %d songs." % (details['name'], details['metadata']['levelAuthorName'], details['stats']['rating'] * 100, ctx.author.name, len(queue)))
 
 
 
@@ -221,7 +240,7 @@ async def credits(ctx):
     await ctx.send("My code can be found here: https://github.com/ElaineGilstrom/Hackey-Quest-BeatSaber-Twitch-Integration :)")
 
 
-@bot.command(name="genBplist")
+@bot.command(name="genlist")
 async def genPlaylist(ctx):
     global queue
     global history
@@ -234,7 +253,8 @@ async def genPlaylist(ctx):
         await ctx.send("Cannot generate playlist: Queue is empty.")
         return
 
-    await ctx.send("Generating Playlist.")
+    #await ctx.send("Generating Playlist.")
+    print("Generating Playlist.")
 
     #Playlist name: Queue #{number generated during stream} for {datetime}
     playlistCount += 1
@@ -245,15 +265,15 @@ async def genPlaylist(ctx):
     bplist["playlistTitle"] = "Queue #%d from %s" % (playlistCount, dt.date())
     bplist['playlistAuthor'] = os.environ['BOT_NICK']
 
-    await ctx.send("Adding thumbnail.")
+    #await ctx.send("Adding thumbnail.")
     f = open(os.environ['PLAYLIST_THUMBNAIL'], "r")
     bplist['image'] = "data:image/png;base64," + f.read()
     f.close()
 
-    await ctx.send("Adding songs.")
+    #await ctx.send("Adding songs.")
     bplist["songs"] = queue
 
-    await ctx.send("Exporting data.")
+    #await ctx.send("Exporting data.")
     rawData = json.dumps(bplist)
     fileName = "queue-%d_%s.bplist" % (playlistCount, dt.date())
     f = open(os.environ['OUTPUT_FOLDER'] + fileName, "w")
@@ -264,6 +284,7 @@ async def genPlaylist(ctx):
     queue = []
 
     await ctx.send("Playlist %s has been generated!" % fileName)
+    print("Finished generating playlist.")
 
 
 
