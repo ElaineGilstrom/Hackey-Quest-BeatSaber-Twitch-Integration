@@ -9,16 +9,26 @@ import re
 from datetime import datetime
 
 
+#ctx.author has attrs: ['__slots__', '_badges', '_channel', '_colour', '_id', '_mod', '_name', '_tags', '_ws', 'badges', 'channel', 'color', 'colour', 'display_name', 'id', 'is_mod', 'is_subscriber', 'is_turbo', 'name', 'subscriber', 'tags', 'turbo', 'type']
+
+#TODO: Add function to notify chat about stuff every X minutes
+
 #checkMap is the function that determinse if a map should be allowed in queue or not.
 #Place any custom checks on the map here.
 #Place the error msg for any failed checks in the issues list
-def checkMap(map = {}):
+def checkMap(_map = {}):
     issues = []
     min_app = float(os.environ['MIN_SONG_APPROVAL'])
-    if map['stats']['rating'] < min_app and map['stats']['downVotes'] != 0:
-        issues.append("Map must have a rating of at least %s." % (min_app * 100))
-        return
-    return []
+    if _map['stats']['rating'] < min_app and _map['stats']['downVotes'] != 0:
+        issues.append("Map must have a rating of at least %s%%." % (min_app * 100))
+    
+    #TODO: Implement blacklist (should probably go before this function is called to prevent unnessesary calls to beatsaver)
+    #   Maybe also add the ability to ban a user from requesting songs
+    #TODO: Add min NJS
+    #TODO: Add min NPS
+    #TODO: Add max length
+
+    return issues
 
 
 queue = []
@@ -59,6 +69,24 @@ async def event_message(ctx):
 
 
 
+def helpDirect(cmd = ""):
+    if cmd.lower() == "ping":
+        return "Lets you know the bot is still alive"
+    elif cmd.lower() == "bsr":
+        return "Adds the given beatsaver.com key to the queue. Syntax: !bsr <key>"
+    elif cmd.lower() == "ss":
+        return "Displays %s's scoresaber information." % os.environ['CHANNEL']
+    elif cmd.lower() == "oops":
+        return "Removes your previously requested song from the queue."
+    elif cmd.lower() == "queue":
+        return "Displays the songs currently in queue"
+    elif cmd.lower() == "history":
+        return "Displays the songs that have previously been requested during this stream."
+    elif cmd.lower() == "code":
+        return "Responds with a link to my source code."
+    else:
+        return "Error: Unrecognized command %s!" % cmd
+
 @bot.command(name="help")
 async def help(ctx):
     #TODO: Implement help menu
@@ -67,29 +95,7 @@ async def help(ctx):
         await ctx.send('Commands: !ping, !bsr, !oops, !queue, !history, !ss, !code. Type !help <command> for more info on individual commands')
         return
 
-    if args[1].lower() == "ping":
-        await ctx.send("Lets you know the bot is still alive")
-        return
-    elif args[1].lower() == "bsr":
-        await ctx.send("Adds the given beatsaver.com key to the queue. Syntax: !bsr <key>")
-        return
-    elif args[1].lower() == "ss":
-        await ctx.send("Displays %s's scoresaber information." % os.environ['CHANNEL'])
-        return
-    elif args[1].lower() == "oops":
-        await ctx.send("Removes your previously requested song from the queue.")
-        return
-    elif args[1].lower() == "queue":
-        await ctx.send("Displays the songs currently in queue")
-        return
-    elif args[1].lower() == "history":
-        await ctx.send("Displays the songs that have previously been requested during this stream.")
-        return
-    elif args[1].lower() == "code":
-        await ctx.send("Responds with a link to my source code.")
-        return
-    else:
-        await ctx.send("Error: Unrecognized command %s!" % args[1])
+    await ctx.send(helpDirect(args[1]))
 
 
 
@@ -131,6 +137,8 @@ async def scoreSaberLookup(ctx):
 @bot.command(name="bsr")
 async def beatSaberRequest(ctx):
     global queue
+
+    #TODO: Implement in chat searching
 
     args = ctx.content.split(" ")
     if len(args) != 2:
@@ -189,7 +197,7 @@ async def beatSaberRequest(ctx):
     if len(issues) > 0:
         print("%s requested a crap song. Rating: %d" % (ctx.author.name, details['stats']['rating']))
 
-        reason = "Request for song \"%s\" by %s denied: " % (map['name'], map['metadata']['levelAuthorName'])
+        reason = "Request for song \"%s\" by %s denied: " % (details['name'], details['metadata']['levelAuthorName'])
         for i in issues:
             reason += i + ', '
 
@@ -246,7 +254,7 @@ async def genPlaylist(ctx):
     global history
     global playlistCount
 
-    if ctx.author.name.lower() != os.environ['CHANNEL'].lower():
+    if ctx.author.name.lower() != os.environ['CHANNEL'].lower() or not ctx.author.is_mod:
         return
 
     if len(queue) == 0:
